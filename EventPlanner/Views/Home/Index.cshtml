@@ -1,0 +1,498 @@
+﻿@model EventPlanner.Models.UpEventModel
+
+@{
+    ViewBag.Title = "Meow";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="~/assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<title>Complete Responsive Web Service</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="~/assets/js/jquery-3.5.1.js"></script>
+<script src="~/assets/js/jquery-ui.js"></script>
+
+<script src="~/assets/js/jszip.js"></script>
+<script src="~/assets/js/xlsx.js"></script>
+<script src="~/assets/js/jquery.dataTables.min.js"></script>
+<script src="~/assets/js/dataTables.buttons.min.js"></script>
+<script src="~/assets/js/pdfmake.min.js"></script>
+<script src="~/assets/js/buttons.html5.min.js"></script>
+<script src="~/assets/js/buttons.print.min.js"></script>
+<script src="~/assets/js/jquery.mark.min.js"></script>
+<script src="~/assets/js/datatables.mark.js"></script>
+<script src="~/assets/js/buttons.colVis.min.js"></script>
+<script src="~/assets/js/bootstrap.min.js"></script>
+<script src="~/assets/js/sweetalert2.min.js"></script>
+
+
+<header class="header">
+    <a href="#" class="logo"><i class="fas fa-magic">Elegant Events</i></a>
+    <div class="fas fa-bars"></div>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="#home">home</a></li>
+            <li><a href="#about">about</a></li>
+            <li><a href="#current_events">Ongoing Events</a></li>
+            <li><a href="#upcoming_events">Upcoming Events</a></li>
+            <li><a href="#previous_events">Previous Events</a></li>
+            <li><a href="#team">team</a></li>
+            <li><a href="#contact">contact</a></li>
+        </ul>
+    </nav>
+</header>
+<body>
+    <section id="home" class="home">
+        <h1 class="banner">Elegant Events</h1>
+        <h3 class="slogan">Moments Dedicated and Flourished for You</h3><br>
+        @*<a href="#"><button>Register your event</button></a>*@
+
+        <div id="btnAddEvent" class="iconbtn" style="float: right;width: 110px;">
+            <div style="display:flex;width: 100px;margin:0 auto;">
+                @*<i aria-hidden="true" class="fa fa-plus iconcolor iconbtnpad"></i>*@
+                <span style="color: #0d033e; font-size: 12px; font-weight: bold; padding-top: 5px; padding-left: 5px; float: right; width: 110px; height: 40px; display: flex; align-items: center; justify-content: center;">Register Your Event</span>
+            </div>
+            <div class="btn-actions-pane-right text-capitalize">
+                <button id="btnAddGuestList" class="btn-wide btn-outline-2x mr-md-2 btn btn-outline-focus btn-sm">Add Guest List</button>
+            </div>
+        </div>
+
+    </section>
+
+    <div id="addEventModal" class="modal">
+        <div class="modal-content" style="width: 40%;">
+            <div class="modal-header">
+                <h2>Register for your event</h2>
+                @*<span class="closeEmp">&times;</span>*@
+            </div>
+            <div class="modal-body">
+                <div class="row clearfix">
+                    <div class="col_40">
+                        <div>
+                            Event Name:
+                        </div>
+                    </div>
+                    <div class="col_60">
+                        <input type="text" id="name" name="name" placeholder="Enter event name" required>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col_40">
+                        <div>
+                            Organizer Name:
+                        </div>
+                    </div>
+                    <div class="col_60">
+                        <input type="text" id="organizerName" name="organizerName" placeholder="Enter your (organizer's)' name" required>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col_40">
+                        <div>
+                            Select Date for event
+                        </div>
+                    </div>
+                    <div class="col_60">
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col_40">
+                        <div>
+                            Select Event Type
+                        </div>
+                    </div>
+                    <div class="col_60">
+                        <select id="event_type" required>
+                            <option value="-1" selected>...Select...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col_100">
+                        <div class="input_field">
+                            <div id="btnSaveEvent" type="submit" class="iconbtn" style="float: right;width: 110px;height: 40px;display: flex;align-items: center;justify-content: center;">
+                                <div style="display: flex;align-items: center;width: 70px;">
+                                    <i aria-hidden="true" class="fa-solid fa-paper-plane iconcolor iconbtnpad"></i>
+                                    <span style="color: #0d033e;font-size: 12px;font-weight: bold;padding-left: 5px;">Submit event</span>
+                                </div>
+                            </div>
+                            <div id="btnCancel" class="iconbtn" style="float: right; width: 110px; height: 40px; margin-right: 30px; display: flex; align-items: center; justify-content: center;">
+                                <div style="display: flex; align-items: center; width: 70px; justify-content: flex-end;">
+                                    <div style="display: flex; align-items: center;">
+                                        <i class="fa fa-ban fa-lg" aria-hidden="true" style="color: #0d033e;"></i>
+                                        <span style="color: #0d033e; font-size: 12px; font-weight: bold; padding-left: 5px;">Cancel</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section id="upcoming_events">
+        <h1 class="heading">Upcoming Events</h1>
+        <br><br>
+        <div class="row" id="eventsContainer">
+        </div>
+    </section>
+
+
+    <div id="addGuestListModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content" style="width: 80%; height: auto;">
+            <div class="modal-header">
+                <h2>Branch assign panel</h2>
+                <span class="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+
+                <div class="row clearfix">
+                    <div class="col_100">
+                        <div style="display: flex; flex-direction: column; align-items: start; justify-content: center;">
+                            <table id="tblBankBranchInfo">
+                                <tr>
+                                    <td style="width: 20%;">Event ID </td>
+                                    <td style="width: 80%;">
+                                        <div class="row clearfix">
+                                            <div class="col_60">
+                                                <select id="event_ID" required>
+                                                    <option value="-1" selected>...Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width: 20%;">Guest Names</td>
+                                    <td style="width: 80%;">
+                                        <div id="guestListContainer" style="position: relative; height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;">
+                                            <!-- The container for guest names -->
+                                            <div id="guestList">
+                                                <!-- Each guest name will be displayed here -->
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 10px;">
+                                            <input type="text" id="guestInput" placeholder="Enter guest name" style="width: calc(100% - 110px);" />
+                                            <button type="button" id="addGuestButton" onclick="addGuest()">Add Another Guest</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                @*<div class="row clearfix">
+                    <div class="col_100">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -18px;">
+                            <table id="tblComplianceOfficerInfo" style="width: 100%;">
+                                <tr>
+                                    <td style="width: 100%; font-size: 16px; text-align: center; font-weight: bold;">Add Guests</td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width: 100%;">
+
+                                        <div class="row clearfix">
+                                            <div class="col_100">
+
+                                                <table id="tblOfficerName" style="width: 100%; margin-top: 5px;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>SL</th>
+                                                            <th>Emp Id</th>
+                                                            <th style="width: 30%;">Name</th>
+                                                            <th style="width: 25%;">Branch Name</th>
+                                                            <th style="width: 18%;">Compliance Start Date</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>*@
+
+                <br />
+                <br />
+                <div class="row clearfix">
+                    <div class="col_100">
+                        <div style="display: flex; flex-direction: column; align-items: end; justify-content: end; margin-top: -18px;">
+                            <button class="btn-save-compliance-officer-info btn-shadow btn-wide fsize-1 btn btn-primary btn-lg" style="float: right;">
+                                <span class="mr-2 opacity-7">
+                                    <i class="icon icon-anim-pulse fa fa-paper-plane"></i>
+                                </span>
+                                <span class="mr-1">Save</span>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+<script src="~/assets/js/main.js"></script>
+<script type="text/javascript">
+    loadUpcomingEvents();
+    loadEventType();
+    
+
+    function loadEventType() {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetEventType", "Home")',
+            async: true,
+            success: function (data) {
+                if (data != null) {
+
+                    var response = JSON.parse(data);
+                    console.log(response);
+                    if (response.length > 0) {
+
+                        var options = "<option value='-1' selected>...Select...</option>";
+                        for (i = 0; i < response.length; i++) {
+
+                            var Text = response[i].Text;
+                            options = options + "<option value='" + Text + "'>" + Text + "</option>";
+                        }
+                        $('#event_type').html('');
+                        $('#event_type').append(options);
+                    }
+                    else {
+                        $('#event_type').html('');
+                        $('#event_type').append("<option value='-1' selected>...Select...</option>");
+                    }
+                }
+            },
+            failure: function (response) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: response.responseText
+                });
+            },
+            error: function (response) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Something went worng, Please try again'
+                });
+            }
+
+        });
+    }
+
+
+
+    function loadUpcomingEvents() {
+    $.ajax({
+        type: 'POST',
+        url: '@Url.Action("UpcomingEvents", "Home")',
+        async: true,
+        success: function (data) {
+            if (data != null) {
+                var response = JSON.parse(data);
+                console.log(typeof response[0]);
+
+                var eventsContainer = $('#eventsContainer');
+                eventsContainer.empty(); // Clear any existing content
+
+                for (var index = 0; index < response.length; index++) {
+                    var event = response[index];
+                    var cardHtml = '<div class="card">' +
+                        '<img src="' + event.picture + '" alt="Event Picture" />' +  // Add this line for picture
+                        '<div class="info">' +
+                            '<h2 id="details' + (index + 1) + '"></h2>' +
+                        '</div>' +
+                    '</div>';
+
+                    eventsContainer.append(cardHtml);
+                    console.log(eventsContainer);
+
+                    var detailsId = '#details' + (index + 1);
+                    var detailsContent = '<b>' + event.name+ '</b><br>Location: ' +
+                        event.location + '<br>Date: ' +
+                        event.event_date + '<br>Organizer: ' +
+                        event.organizer_name + '<br>Event ID: ' +
+                        event.id_num;
+
+                    $(detailsId).html(detailsContent);
+                }
+            }
+        }
+    });
+    }
+
+    function loadEventID() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetEventID", "Home")',
+            async: true,
+            success: function (data) {
+                if (data != null) {
+
+                    var response = JSON.parse(data);
+                    console.log(response);
+                    if (response.length > 0) {
+
+                        var options = "<option value='-1' selected>...Select Event ID...</option>";
+                        for (i = 0; i < response.length; i++) {
+
+                            var Text = response[i].Text;
+                            options = options + "<option value='" + Text + "'>" + Text + "</option>";
+                        }
+                        $('#event_ID').html('');
+                        $('#event_ID').append(options);
+                    }
+                    else {
+                        $('#event_ID').html('');
+                        $('#event_ID').append("<option value='-1' selected>...Select Event ID...</option>");
+                    }
+                }
+            },
+            failure: function (response) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: response.responseText
+                });
+            },
+            error: function (response) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Something went worng, Please try again'
+                });
+            }
+
+        });
+    }
+    loadEventID();
+
+   $(document).ready(function () {
+    $(document).on("click", "#btnAddEvent", function (e) {
+        e.preventDefault();
+        addEventModal.style.display = "block";
+        /*ClearInfo();*/
+        $('#name').focus();
+    });
+});
+
+$(document).on("click", "#btnSaveEvent", function (e) {
+    e.preventDefault();
+ /*   alert($('#eventType').val());*/
+    var masterData = {
+        name: $('#name').val(),
+        organizer_name: $('#organizerName').val(),
+        event_date: $('#eventDate').val(),
+        event_type: $('#event_type').val()
+    }
+
+
+    if (!masterData.event_type || masterData.event_type == '-1' || masterData.event_type==null) { // Check if event_type is empty
+        $('#event_type').focus();
+        Swal.fire({
+            icon: 'error',
+            title: 'Please Select Event Type'
+        });
+    } else if (!masterData.name) { // Check if event_name is empty
+        $('#name').focus();
+        Swal.fire({
+            icon: 'error',
+            title: 'Please Select Event Name'
+        });
+    } else {
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json', // Set content type to JSON
+            data: JSON.stringify(masterData),
+            url: '@Url.Action("SaveNewEvent", "Home")',
+            async: true,
+            success: function (data) {
+                if (data != null) {
+                    var response = JSON.parse(data);
+                    Swal.fire({
+                        icon: 'success',
+                        html: '<span style="font-size: 20px;">Your event has been saved Successfully</span>'
+                    });
+
+                    /*ClearInfo();*/
+                    addEventModal.style.display = "none";
+                }
+            },
+            failure: function (response) {
+                Swal.fire({
+                    icon: 'error',
+                    title: response.responseText
+                });
+            },
+            error: function (response) {
+                Swal.fire({
+                    icon: 'error',
+                    title: response.responseText
+                });
+            }
+        });
+    }
+});
+
+
+    $(document).on("click", "#btnCancel", function (e) {
+        addEventModal.style.display = "none";
+
+    });
+
+    $(document).on("click", "#btnAddGuestList", function (e) {
+        e.preventDefault();
+        addGuestListModal.style.display = "block";
+        /*clearAll();*/
+    });
+
+    function addGuest() {
+        var guestInput = document.getElementById('guestInput');
+        var guestName = guestInput.value.trim();
+
+        if (guestName !== "") {
+            var guestList = document.getElementById('guestList');
+            var newGuest = document.createElement('div');
+            newGuest.innerText = guestName;
+            guestList.appendChild(newGuest);
+
+            // Clear the input field after adding the guest name
+            guestInput.value = "";
+        }
+    }
+
+</script>
